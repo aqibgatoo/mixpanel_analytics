@@ -50,7 +50,7 @@ class MixpanelAnalytics {
   Stream<String> _userId$;
 
   // Stores the value of the userId
-  String userId;
+  String _userId;
 
   /// Reference to the timer set to upload events in batch
   Timer _batchTimer;
@@ -95,6 +95,9 @@ class MixpanelAnalytics {
   /// Default sha function to be used when none is provided.
   static String _defaultShaFn(value) => value;
 
+  /// Set user id
+  set userId(String userId) => _userId = userId;
+
   /// Used in case we want to remove the timer to send batched events.
   void dispose() {
     if (_batchTimer != null) {
@@ -128,7 +131,7 @@ class MixpanelAnalytics {
     _shouldAnonymize = shouldAnonymize ?? false;
     _shaFn = shaFn ?? _defaultShaFn;
 
-    _userId$?.listen((id) => userId = id);
+    _userId$?.listen((id) => _userId = id);
   }
 
   /// Provides an instance of this class.
@@ -160,7 +163,7 @@ class MixpanelAnalytics {
 
     _batchTimer = Timer.periodic(_uploadInterval, (_) => _uploadQueuedEvents());
 
-    _userId$?.listen((id) => userId = id);
+    _userId$?.listen((id) => _userId = id);
   }
 
   /// Sends a request to track a specific event.
@@ -300,9 +303,9 @@ class MixpanelAnalytics {
       'token': _token,
       'time': time.millisecondsSinceEpoch,
       'distinct_id': props['distinct_id'] == null
-          ? userId == null
+          ? _userId == null
               ? 'Unknown'
-              : _shouldAnonymize ? _anonymize('userId', userId) : userId
+              : _shouldAnonymize ? _anonymize('userId', _userId) : _userId
           : props['distinct_id']
     };
     if (ip != null) {
@@ -328,9 +331,9 @@ class MixpanelAnalytics {
       '\$token': _token,
       '\$time': time.millisecondsSinceEpoch,
       '\$distinct_id': value['distinct_id'] == null
-          ? userId == null
+          ? _userId == null
               ? 'Unknown'
-              : _shouldAnonymize ? _anonymize('userId', userId) : userId
+              : _shouldAnonymize ? _anonymize('userId', _userId) : _userId
           : value['distinct_id']
     };
     if (ip != null) {
