@@ -50,7 +50,7 @@ class MixpanelAnalytics {
   Stream<String> _userId$;
 
   // Stores the value of the userId
-  String _userId;
+  String userId;
 
   /// Reference to the timer set to upload events in batch
   Timer _batchTimer;
@@ -115,7 +115,7 @@ class MixpanelAnalytics {
   /// [onError] is a callback function that will be executed in case there is an error, otherwise `debugPrint` will be used.
   MixpanelAnalytics({
     @required String token,
-    @required Stream<String> userId$,
+    Stream<String> userId$,
     bool shouldAnonymize,
     ShaFn shaFn,
     bool verbose,
@@ -128,7 +128,7 @@ class MixpanelAnalytics {
     _shouldAnonymize = shouldAnonymize ?? false;
     _shaFn = shaFn ?? _defaultShaFn;
 
-    _userId$?.listen((id) => _userId = id);
+    _userId$?.listen((id) => userId = id);
   }
 
   /// Provides an instance of this class.
@@ -142,8 +142,8 @@ class MixpanelAnalytics {
   /// [onError] is a callback function that will be executed in case there is an error, otherwise `debugPrint` will be used.
   MixpanelAnalytics.batch({
     @required String token,
-    @required Stream<String> userId$,
     @required Duration uploadInterval,
+    Stream<String> userId$,
     bool shouldAnonymize,
     ShaFn shaFn,
     bool verbose,
@@ -160,7 +160,7 @@ class MixpanelAnalytics {
 
     _batchTimer = Timer.periodic(_uploadInterval, (_) => _uploadQueuedEvents());
 
-    _userId$?.listen((id) => _userId = id);
+    _userId$?.listen((id) => userId = id);
   }
 
   /// Sends a request to track a specific event.
@@ -300,9 +300,9 @@ class MixpanelAnalytics {
       'token': _token,
       'time': time.millisecondsSinceEpoch,
       'distinct_id': props['distinct_id'] == null
-          ? _userId == null
+          ? userId == null
               ? 'Unknown'
-              : _shouldAnonymize ? _anonymize('userId', _userId) : _userId
+              : _shouldAnonymize ? _anonymize('userId', userId) : userId
           : props['distinct_id']
     };
     if (ip != null) {
@@ -328,9 +328,9 @@ class MixpanelAnalytics {
       '\$token': _token,
       '\$time': time.millisecondsSinceEpoch,
       '\$distinct_id': value['distinct_id'] == null
-          ? _userId == null
+          ? userId == null
               ? 'Unknown'
-              : _shouldAnonymize ? _anonymize('userId', _userId) : _userId
+              : _shouldAnonymize ? _anonymize('userId', userId) : userId
           : value['distinct_id']
     };
     if (ip != null) {
